@@ -1,6 +1,3 @@
-variable "region_provider" {
-  type = string
-}
 variable "virginia_vpc" {
   type = object({
     name  = string,
@@ -11,7 +8,7 @@ variable "virginia_vpc" {
 }
 
 variable "public_subnets" {
-  description = "List public subnets "
+  description = "List subnets"
   type        = list(string)
 }
 
@@ -21,11 +18,10 @@ variable "private_subnets" {
 }
 
 
+variable "zone" {
+  type = list(string)
+}
 
 variable "route_table_cidr" {
   type = string
-}
-
-variable "zone" {
-  type = list(string)
 }
