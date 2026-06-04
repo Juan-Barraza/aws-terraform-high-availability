@@ -1,33 +1,5 @@
-variable "region_provider" {
+variable "vpc_id" {
   type = string
-}
-variable "virginia_vpc" {
-  type = object({
-    name  = string,
-    env   = string,
-    owner = string,
-    cidr  = string,
-  })
-}
-
-variable "public_subnets" {
-  description = "List public subnets "
-  type        = list(string)
-}
-
-variable "private_subnets" {
-  description = "List private subnets "
-  type        = list(string)
-}
-
-
-
-variable "route_table_cidr" {
-  type = string
-}
-
-variable "zone" {
-  type = list(string)
 }
 
 variable "ingress_port_lis_bkd" {
@@ -42,9 +14,21 @@ variable "ingress_lb" {
   type = list(number)
 }
 
+variable "public_subnets_ids" {
+  type = list(string)
+}
+
+variable "private_subnets_ids" {
+  type = list(string)
+}
 
 variable "ec2_spects" {
   type = map(string)
+}
+
+
+variable "key_pairs_name" {
+  type = string
 }
 
 variable "tags" {
