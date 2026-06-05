@@ -72,3 +72,10 @@ variable "certificate_arn" {
   default     = null
   description = "ARN of SSL certification (is required in production)"
 }
+
+variable "ingress_efs" {
+  type = object({
+    port_from          = number,
+    to_port            = number
+  })
+}

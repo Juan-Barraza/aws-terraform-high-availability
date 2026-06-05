@@ -93,8 +93,9 @@ resource "aws_lb" "alb_instance_bkd" {
 
 
   tags = {
-    "Name" = var.tags.name_lb
-    "env"  = var.tags.env
+    "Name"    = var.tags.name_lb
+    "env"     = var.tags.env
+    ManagedBy = "Terraform"
   }
 }
 
@@ -196,7 +197,9 @@ resource "aws_instance" "aws_instance_persistence" {
   key_name               = var.key_pairs_name
   vpc_security_group_ids = [aws_security_group.private_instance_persistence_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-
+  user_data = templatefile("${path.module}/scripts/setup_efs.sh", {
+    efs_id = var.efs_id
+  })
   tags = {
     "Name" = var.tags.name_instance_p
     "env"  = var.tags.env

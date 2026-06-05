@@ -56,3 +56,7 @@ variable "certificate_arn" {
   default     = null
   description = "ARN of SSL certification (is required in production)"
 }
+
+variable "efs_id" {
+  type = string
+}
