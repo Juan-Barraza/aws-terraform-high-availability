@@ -32,3 +32,12 @@ module "efs" {
   private_subnet_ids            = module.vpc.private_subnet_ids
   segurity_group_persistence_id = module.compute.presistence_sg_id
 }
+
+
+module "ses" {
+  source                = "./modules/ses"
+  notification_email    = var.notification_email
+  enable_ses_monitoring = var.enable_ses_monitoring
+  use_domain_identity   = var.use_domain_identity
+  ses_domain            = var.ses_domain
+}
