@@ -45,7 +45,7 @@ resource "aws_security_group" "efs_sg" {
   ingress {
     description     = "NFS from application instances"
     from_port       = var.ingress_efs.port_from
-    to_port         = var.ingress_efs.port_from
+    to_port         = var.ingress_efs.to_port
     protocol        = "tcp"
     security_groups = [var.segurity_group_persistence_id]
   }
