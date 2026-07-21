@@ -43,11 +43,11 @@ resource "aws_security_group" "efs_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description     = "NFS from application instances"
-    from_port       = var.ingress_efs.port_from
-    to_port         = var.ingress_efs.to_port
-    protocol        = "tcp"
-    security_groups = [var.segurity_group_persistence_id]
+    description = "NFS from application instances"
+    from_port   = var.ingress_efs.port_from
+    to_port     = var.ingress_efs.to_port
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
   }
 
   egress {
@@ -66,7 +66,6 @@ resource "aws_security_group" "efs_sg" {
 resource "aws_efs_mount_target" "main" {
   count = length(var.private_subnet_ids)
 
-  file_system_id  = aws_efs_file_system.fs.id
-  subnet_id       = var.private_subnet_ids[count.index]
-  security_groups = [aws_security_group.efs_sg.id]
+  file_system_id = aws_efs_file_system.fs.id
+  subnet_id      = var.private_subnet_ids[count.index]
 }

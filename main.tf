@@ -8,6 +8,14 @@ module "vpc" {
   zone             = var.zone
 }
 
+module "efs" {
+  source             = "./modules/efs"
+  vpc_id             = module.vpc.vpc_id
+  vpc_cidr           = module.vpc.vpc_cidr
+  tags               = var.tags
+  ingress_efs        = var.ingress_efs
+  private_subnet_ids = module.vpc.private_subnet_ids
+}
 module "compute" {
   source                       = "./modules/compute"
   vpc_id                       = module.vpc.vpc_id
@@ -16,23 +24,14 @@ module "compute" {
   ingress_port_lis_bkd         = var.ingress_port_lis_bkd
   ingress_port_lis_persistence = var.ingress_port_lis_persistence
   ec2_spects                   = var.ec2_spects
-  key_pairs_name               = data.aws_key_pair.key_pair.key_name
   tags                         = var.tags
   target_lb                    = var.target_lb
   ingress_lb                   = var.ingress_lb
   efs_id                       = module.efs.efs_id
+  efs_sg_id                    = module.efs.efs_sg_id
+  egress_efs                   = var.ingress_efs
+  depends_on                   = [module.vpc, module.efs]
 }
-
-
-module "efs" {
-  source                        = "./modules/efs"
-  vpc_id                        = module.vpc.vpc_id
-  tags                          = var.tags
-  ingress_efs                   = var.ingress_efs
-  private_subnet_ids            = module.vpc.private_subnet_ids
-  segurity_group_persistence_id = module.compute.presistence_sg_id
-}
-
 
 module "ses" {
   source                = "./modules/ses"

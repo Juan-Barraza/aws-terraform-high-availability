@@ -40,7 +40,13 @@ resource "aws_security_group" "private_instance_persistence_sg" {
       security_groups = [aws_security_group.private_instance_bkd_sg.id]
     }
   }
-
+  egress {
+    description     = "NFS to EFS"
+    from_port       = var.egress_efs.port_from
+    to_port         = var.egress_efs.to_port  
+    protocol        = "tcp"
+    security_groups = [var.efs_sg_id] 
+  }
   egress {
     from_port   = 0
     to_port     = 0
@@ -144,6 +150,7 @@ resource "aws_launch_template" "instance_template" {
   image_id               = var.ec2_spects.ami
   instance_type          = var.ec2_spects.instance_type_bkd
   vpc_security_group_ids = [aws_security_group.private_instance_bkd_sg.id]
+  user_data              = base64encode(file("${path.module}/scripts/setup_docker.sh"))
   iam_instance_profile {
     name = aws_iam_instance_profile.ssm_profile.name
   }

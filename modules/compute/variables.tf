@@ -29,6 +29,7 @@ variable "ec2_spects" {
 
 variable "key_pairs_name" {
   type = string
+  default = ""
 }
 
 variable "tags" {
@@ -59,4 +60,15 @@ variable "certificate_arn" {
 
 variable "efs_id" {
   type = string
+}
+
+variable "efs_sg_id" {
+  type = string
+}
+
+variable "egress_efs" {
+  type = object({
+    port_from = number,
+    to_port   = number
+  })
 }

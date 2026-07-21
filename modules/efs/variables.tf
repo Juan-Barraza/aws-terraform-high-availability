@@ -8,15 +8,15 @@ variable "vpc_id" {
 
 variable "ingress_efs" {
   type = object({
-    port_from          = number,
-    to_port            = number
+    port_from = number,
+    to_port   = number
   })
 }
 
 variable "private_subnet_ids" {
-  type =  list(string)
+  type = list(string)
 }
 
-variable "segurity_group_persistence_id" {
+variable "vpc_cidr" {
   type = string
 }

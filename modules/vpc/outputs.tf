@@ -11,3 +11,7 @@ output "private_subnet_ids" {
   value       = aws_subnet.private_subnet[*].id
   description = "return list with all private subnets ids"
 }
+
+output "vpc_cidr" {
+  value = aws_vpc.vpc_virginia.cidr_block
+}
