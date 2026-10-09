@@ -26,10 +26,8 @@ variable "ec2_spects" {
   type = map(string)
 }
 
-
-variable "key_pairs_name" {
+variable "al2023_ami" {
   type = string
-  default = ""
 }
 
 variable "tags" {
@@ -71,4 +69,8 @@ variable "egress_efs" {
     port_from = number,
     to_port   = number
   })
+}
+variable "enable_deletion_protection" {
+  type    = bool
+  default = false
 }

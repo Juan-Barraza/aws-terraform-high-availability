@@ -47,6 +47,10 @@ variable "ec2_spects" {
   type = map(string)
 }
 
+variable "enable_deletion_protection" {
+  type    = bool
+  default = false
+}
 variable "tags" {
   type = map(string)
 }

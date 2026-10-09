@@ -1,5 +1,6 @@
 resource "aws_efs_file_system" "fs" {
   creation_token = "efs_apps${var.tags.env}"
+  encrypted      = true
 
   tags = {
     "Name" = "efs_shared_${var.tags.env}"
@@ -19,6 +20,7 @@ data "aws_iam_policy_document" "poliy_efs" {
     actions = [
       "elasticfilesystem:ClientMount",
       "elasticfilesystem:ClientWrite",
+      "elasticfilesystem:ClientRootAccess",
     ]
 
     resources = [aws_efs_file_system.fs.arn]
@@ -41,22 +43,6 @@ resource "aws_security_group" "efs_sg" {
   name        = "Sg_004_efs"
   description = "Allow NFS traffic for EFS mount targets"
   vpc_id      = var.vpc_id
-
-  ingress {
-    description = "NFS from application instances"
-    from_port   = var.ingress_efs.port_from
-    to_port     = var.ingress_efs.to_port
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
     Name = "efs-mount-target-sg"
   }
@@ -68,4 +54,5 @@ resource "aws_efs_mount_target" "main" {
 
   file_system_id = aws_efs_file_system.fs.id
   subnet_id      = var.private_subnet_ids[count.index]
+  security_groups = [aws_security_group.efs_sg.id]
 }

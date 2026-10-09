@@ -24,6 +24,8 @@ module "compute" {
   ingress_port_lis_bkd         = var.ingress_port_lis_bkd
   ingress_port_lis_persistence = var.ingress_port_lis_persistence
   ec2_spects                   = var.ec2_spects
+  al2023_ami                   = local.al2023_ami_id
+  enable_deletion_protection   = var.enable_deletion_protection
   tags                         = var.tags
   target_lb                    = var.target_lb
   ingress_lb                   = var.ingress_lb

@@ -59,6 +59,14 @@ resource "aws_security_group" "private_instance_persistence_sg" {
     "env"  = var.tags.env
   }
 }
+resource "aws_vpc_security_group_ingress_rule" "efs_from_persistence" {
+  security_group_id            = var.efs_sg_id
+  referenced_security_group_id = aws_security_group.private_instance_persistence_sg.id
+  ip_protocol                  = "tcp"
+  from_port                    = var.egress_efs.port_from
+  to_port                      = var.egress_efs.to_port
+  description                  = "NFS from persistence instance only"
+}
 
 resource "aws_security_group" "alb_sg" {
   name        = "Sg_003_lb"
@@ -95,7 +103,7 @@ resource "aws_lb" "alb_instance_bkd" {
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = var.public_subnets_ids
 
-  enable_deletion_protection = false # true in production
+  enable_deletion_protection = var.enable_deletion_protection # true in production
 
 
   tags = {
@@ -135,7 +143,7 @@ resource "aws_lb_listener" "http" {
     dynamic "redirect" {
       for_each = var.certificate_arn != null ? [1] : []
       content {
-        port        = "433"
+        port        = "443"
         protocol    = "HTTPS"
         status_code = "HTTP_301"
       }
@@ -147,7 +155,7 @@ resource "aws_lb_listener" "http" {
 
 resource "aws_launch_template" "instance_template" {
   name_prefix            = "template_bkd-"
-  image_id               = var.ec2_spects.ami
+  image_id               = var.al2023_ami
   instance_type          = var.ec2_spects.instance_type_bkd
   vpc_security_group_ids = [aws_security_group.private_instance_bkd_sg.id]
   user_data              = base64encode(file("${path.module}/scripts/setup_docker.sh"))
@@ -159,9 +167,12 @@ resource "aws_launch_template" "instance_template" {
     create_before_destroy = true
   }
 
-  tags = {
-    "Name" = var.tags.name_instance_bkd
-    "env"  = var.tags.env
+   tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = var.tags.name_instance_bkd
+      env  = var.tags.env
+    }
   }
 }
 
@@ -174,6 +185,7 @@ resource "aws_autoscaling_group" "auto_sg_instance_bkd" {
   force_delete        = true
   health_check_type   = "ELB"
   vpc_zone_identifier = var.private_subnets_ids
+  target_group_arns   = [aws_lb_target_group.bkd_tg.arn]
 
 
   launch_template {
@@ -198,17 +210,23 @@ resource "aws_autoscaling_policy" "cpu_scaling" {
 
 
 resource "aws_instance" "aws_instance_persistence" {
-  ami                    = var.ec2_spects.ami
+  ami                    = var.al2023_ami
   instance_type          = var.ec2_spects.instance_type_persistence
   subnet_id              = var.private_subnets_ids[0]
-  key_name               = var.key_pairs_name
   vpc_security_group_ids = [aws_security_group.private_instance_persistence_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
   user_data = templatefile("${path.module}/scripts/setup_efs.sh", {
     efs_id = var.efs_id
   })
+  # user data only runs on first boot; this recreates the instance when it changes
+  # (safe here: data and compose file live on EFS)
+  user_data_replace_on_change = true
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
   tags = {
     "Name" = var.tags.name_instance_p
     "env"  = var.tags.env
-  }
+  } 
 }
